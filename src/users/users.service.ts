@@ -1,54 +1,49 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { PagionationQueryDto } from '../common/dto/pagionation-query.dto';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: 1,
-      firstName: 'Jannis',
-      lastName: 'Manias',
-      address: 'Talstraße',
-      city: 'Düsseldorf',
-      fathersName: 'Stathis',
-      email: 'gmanias1991@gmail.com',
-      phone: '123456789',
-      gender: 'male',
-      postalCode: '40217',
-      birthdate: new Date(),
-      insuranceNumber: '2342',
-      insuranceType: 'IKA',
-    },
-  ];
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+  ) {}
 
-  findAll() {
-    return this.users;
+  findAll(paginationQuery: PagionationQueryDto) {
+    const { limit, offset } = paginationQuery;
+    return this.userModel.find().skip(offset).limit(limit).exec();
   }
 
-  findOne(id: string) {
-    const user = this.users.find((user) => user.id === +id);
+  async findOne(id: string) {
+    const user = await this.userModel.findOne({ _id: id }).exec();
     if (!user) {
-      throw new NotFoundException(`Coffee ${id} not found`);
+      throw new NotFoundException(`User ${id} not found`);
     }
     return user;
   }
 
-  create(createUserDto: any) {
-    this.users.push(createUserDto);
-    return createUserDto;
+  create(createUserDto: CreateUserDto) {
+    const user = new this.userModel(createUserDto);
+    return user.save();
   }
 
-  update(id: string, updateUserDto: any) {
-    const existingUser = this.findOne(id);
-    if (existingUser) {
-      // update the existing entity
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const existingUser = await this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
+      .exec();
+
+    if (!existingUser) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
+
+    return existingUser;
   }
 
-  remove(id: string) {
-    const userIndex = this.users.findIndex((user) => user.id === +id);
-    if (userIndex >= 0) {
-      this.users.splice(userIndex, 1);
-    }
+  async remove(id: string) {
+    const user = await this.findOne(id);
+    return user.remove();
   }
 }

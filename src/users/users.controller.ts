@@ -11,15 +11,17 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PagionationQueryDto } from '../common/dto/pagionation-query.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(@Query() paginationQuery) {
-    //const { limit, offset } = paginationQuery;
-    return this.usersService.findAll();
+  findAll(@Query() paginationQuery: PagionationQueryDto) {
+    return this.usersService.findAll(paginationQuery);
   }
 
   @Get(':id')

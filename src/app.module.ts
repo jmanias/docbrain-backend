@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://gmanias:DGeLGP7PxPQJGizs@cluster0.4esgh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
-    ),
+    ConfigModule.forRoot({
+      //ignoreEnvFile: true // production
+    }),
+    MongooseModule.forRoot(process.env.DATABASE_CONNECTION_STRING),
     UsersModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

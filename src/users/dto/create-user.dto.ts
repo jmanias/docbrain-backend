@@ -11,7 +11,7 @@ export class CreateUserDto {
   readonly fathersName: string;
 
   @IsDateString()
-  readonly birthdate: Date;
+  readonly birthdate: string;
 
   @IsString()
   readonly gender: string;
