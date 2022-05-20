@@ -17,10 +17,19 @@ export class UsersService {
     return this.userModel.find().skip(offset).limit(limit).exec();
   }
 
-  async findOne(id: string) {
-    const user = await this.userModel.findOne({ _id: id }).exec();
+  async findUserById(id: string) {
+    const user = await this.userModel.findById(id).exec();
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
+    }
+    return user;
+  }
+
+  async findUserByEmail(email: string) {
+    const user = await this.userModel.findOne({ email: email }).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
     }
     return user;
   }
@@ -43,7 +52,7 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = await this.findOne(id);
+    const user = await this.findUserById(id);
     return user.remove();
   }
 }
