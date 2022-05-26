@@ -10,37 +10,19 @@ export class User extends Document {
   lastName: string;
 
   @Prop()
-  fathersName: string;
-
-  @Prop()
-  birthdate: Date;
-
-  @Prop()
-  gender: string;
-
-  @Prop()
   email: string;
 
   @Prop()
   password: string;
 
   @Prop()
-  phone: string;
+  role: string;
 
   @Prop()
-  address: string;
+  language: string;
 
   @Prop()
-  city: string;
-
-  @Prop()
-  postalCode: string;
-
-  @Prop()
-  insuranceType: string;
-
-  @Prop()
-  insuranceNumber: string;
+  active: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,30 +1,58 @@
 import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
+import { AuthDto } from './dto';
+import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
+import appConfig from '../config/app.config';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private jwtService: JwtService) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.usersService.findUserByEmail(username);
+  hashData(data: string) {
+    return bcrypt.hash(data, 10);
+  }
 
-    if (user && user.password === password) {
-      const { password, email, ...rest } = user;
-      return rest;
-    }
+  async getTokens(userId: number, email: string): Promise<Tokens> {
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        { secret: appConfig().appSecret, expiresIn: 60 * 15 },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        { secret: appConfig().appSecret, expiresIn: 60 * 60 * 24 * 7 },
+      ),
+    ]);
 
+    return {
+      access_token: at,
+      refresh_token: rt,
+    };
+  }
+
+  async singupLocal(dto: AuthDto): Promise<Tokens> {
+    const hash = await this.hashData(dto.password);
+
+    const tokens = await this.getTokens(12, 'test@test.com');
+    return tokens;
+  }
+
+  singinLocal() {
     return null;
   }
 
-  async login(user: any) {
-    const payload = { email: user._doc.email, id: user._doc._id };
+  logout() {
+    return null;
+  }
 
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  refreshTokens() {
+    return null;
   }
 }
