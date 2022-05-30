@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -18,7 +22,10 @@ export class UsersService {
   }
 
   async findUserById(id: string) {
-    const user = await this.userModel.findById(id).exec();
+    let user;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await this.userModel.findById(id).exec();
+    }
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
     }
@@ -34,7 +41,13 @@ export class UsersService {
     return user;
   }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    if (await this.userModel.findOne({ email: createUserDto.email })) {
+      throw new ConflictException(
+        `User with email ${createUserDto.email} already exists`,
+      );
+    }
+
     const user = new this.userModel(createUserDto);
     return user.save();
   }
