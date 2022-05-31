@@ -1,3 +1,4 @@
 export default () => ({
-  appSecret: process.env.APP_SECRET,
+  jwtSecretAt: process.env.JWT_SECRET_AT,
+  jwtSecretRt: process.env.JWT_SECRET_RT,
 });

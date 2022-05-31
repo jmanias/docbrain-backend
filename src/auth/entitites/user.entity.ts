@@ -25,6 +25,9 @@ export class User extends Document {
   active: boolean;
 
   @Prop()
+  hash: string;
+
+  @Prop()
   hashedRt: string;
 }
 
