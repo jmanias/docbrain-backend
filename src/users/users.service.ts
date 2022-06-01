@@ -53,12 +53,16 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const existingUser = await this.userModel
-      .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
-      .exec();
+    let existingUser;
+
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      existingUser = await this.userModel
+        .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
+        .exec();
+    }
 
     if (!existingUser) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User ${id} not found`);
     }
 
     return existingUser;
@@ -66,6 +70,11 @@ export class UsersService {
 
   async remove(id: string) {
     const user = await this.findUserById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`);
+    }
+
     return user.remove();
   }
 }
