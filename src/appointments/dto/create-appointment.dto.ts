@@ -1,14 +1,10 @@
 import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateSurgeryDto {
+export class CreateAppointmentDto {
   @IsOptional()
   @IsString()
   readonly type: string;
-
-  @IsOptional()
-  @IsString()
-  readonly place: string;
 
   @IsNotEmpty()
   @Type(() => Date)
@@ -33,5 +29,5 @@ export class CreateSurgeryDto {
 
   @IsOptional()
   @IsString()
-  readonly anesthesia: string;
+  readonly reason: string;
 }

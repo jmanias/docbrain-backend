@@ -2,12 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 @Schema()
-export class Surgery extends Document {
+export class Appointment extends Document {
   @Prop()
   type: string;
-
-  @Prop()
-  place: string;
 
   @Prop()
   date: Date;
@@ -25,7 +22,7 @@ export class Surgery extends Document {
   duration: string;
 
   @Prop()
-  anesthesia: string;
+  reason: string;
 }
 
-export const SurgerySchema = SchemaFactory.createForClass(Surgery);
+export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
