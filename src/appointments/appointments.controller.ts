@@ -13,6 +13,8 @@ import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { GetCurrentUserId } from '../common/decorators';
+import mongoose from 'mongoose';
 
 @ApiTags('appointments')
 @Controller('appointments')
@@ -30,8 +32,11 @@ export class AppointmentsController {
   }
 
   @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto);
+  create(
+    @Body() createAppointmentDto: CreateAppointmentDto,
+    @GetCurrentUserId() userId: mongoose.Schema.Types.ObjectId,
+  ) {
+    return this.appointmentsService.create(createAppointmentDto, userId);
   }
 
   @Patch(':id')

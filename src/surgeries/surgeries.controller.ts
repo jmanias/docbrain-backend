@@ -13,6 +13,8 @@ import { SurgeriesService } from './surgeries.service';
 import { PagionationQueryDto } from '../common/dto/pagionation-query.dto';
 import { CreateSurgeryDto } from './dto/create-surgery.dto';
 import { UpdateSurgeryDto } from './dto/update-surgery.dto';
+import { GetCurrentUserId } from '../common/decorators';
+import mongoose from 'mongoose';
 
 @ApiTags('surgeries')
 @Controller('surgeries')
@@ -30,8 +32,11 @@ export class SurgeriesController {
   }
 
   @Post()
-  create(@Body() createSurgeryDto: CreateSurgeryDto) {
-    return this.surgeriesService.create(createSurgeryDto);
+  create(
+    @Body() createSurgeryDto: CreateSurgeryDto,
+    @GetCurrentUserId() userId: mongoose.Schema.Types.ObjectId,
+  ) {
+    return this.surgeriesService.create(createSurgeryDto, userId);
   }
 
   @Patch(':id')

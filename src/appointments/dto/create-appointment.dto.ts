@@ -21,13 +21,13 @@ export class CreateAppointmentDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly patient: string;
-
-  @IsNotEmpty()
-  @IsString()
   readonly duration: string;
 
   @IsOptional()
   @IsString()
   readonly reason: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly patient: string;
 }

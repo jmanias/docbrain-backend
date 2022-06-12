@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Patient extends Document {
   @Prop()
   firstName: string;
@@ -33,13 +33,13 @@ export class Patient extends Document {
   @Prop()
   insuranceType: string;
 
-  @Prop()
+  @Prop({ unique: true })
   insuranceNumber: string;
 
-  @Prop()
+  @Prop({ unique: true })
   phone: string;
 
-  @Prop()
+  @Prop({ unique: true })
   mobilePhone: string;
 
   @Prop()

@@ -9,7 +9,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as argon from 'argon2';
 import { LoginDto } from './dto';
 import appConfig from '../config/app.config';
 
@@ -20,6 +20,8 @@ export class AuthService {
   @InjectModel(User.name) private readonly userModel: Model<User>;
 
   async signupLocal(createUserDto: CreateUserDto): Promise<Tokens> {
+    const hash = await argon.hash(createUserDto.password);
+
     // if user already exist
     const isUserExists = await this.userModel
       .findOne({ email: createUserDto.email })
@@ -28,7 +30,7 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
-    createUserDto.password = await this.hashData(createUserDto.password);
+    createUserDto.password = hash;
 
     const existingUsers = await this.userModel.countDocuments();
     if (existingUsers === 0) {
@@ -47,10 +49,11 @@ export class AuthService {
     const user = await this.userModel.findOne({ email: loginDto.email }).exec();
     if (!user) throw new ForbiddenException('Access Denied');
 
-    const passwordMatches = await bcrypt.compare(
-      loginDto.password,
+    const passwordMatches = await argon.verify(
       user.password,
+      loginDto.password,
     );
+
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.email);
@@ -72,8 +75,7 @@ export class AuthService {
     const user = await this.userModel.findById(userId).exec();
     if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await bcrypt.compare(rt, user.hashedRt);
-    console.log(rtMatches);
+    const rtMatches = await argon.verify(user.hashedRt, rt);
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.email);
@@ -82,15 +84,11 @@ export class AuthService {
   }
 
   async updateRtHash(userId: number, rt: string) {
-    const hash = await this.hashData(rt);
+    const hash = await argon.hash(rt);
 
     await this.userModel
       .findOneAndUpdate({ _id: userId }, { hashedRt: hash }, { new: true })
       .exec();
-  }
-
-  hashData(data: string) {
-    return bcrypt.hash(data, 10);
   }
 
   async getTokens(userId: number, email: string) {
