@@ -34,6 +34,7 @@ async function bootstrap() {
   // activate access token guard and allow only public (Public()) routes (at-guard)
   const reflector = new Reflector();
   app.useGlobalGuards(new AtGuard(reflector));
+  app.enableCors();
 
   await app.listen(3000);
 }
